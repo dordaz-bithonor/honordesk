@@ -29,6 +29,16 @@ Primer envío cuando el repo remoto exista y la clave/token estén listos:
 git push -u origin main
 ```
 
+**Atajo (Windows, si `git push` te da 403 con otra cuenta):** en PowerShell, con un token **classic** con scope `repo` de la cuenta **dordaz-bithonor**:
+
+```powershell
+$env:GITHUB_PAT = "ghp_xxxxxxxx"
+.\scripts\push-bithonor.ps1
+Remove-Item Env:\GITHUB_PAT
+```
+
+El script no guarda el token en ningún archivo del repo.
+
 Si prefieres **SSH** en lugar de HTTPS+PAT: añade una clave SSH en GitHub (cuenta **dordaz-bithonor**) y cambia el remote a `git@github.com:dordaz-bithonor/honordesk.git` (las claves SSH suelen ser por máquina; si una clave está solo en la cuenta Bithonor, no uses esa misma clave en la cuenta inspirazone salvo que sepas cómo gestionar `~/.ssh/config`).
 
 ### Supabase (cuenta Bithonor)
