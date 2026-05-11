@@ -23,6 +23,9 @@ Primer envío cuando el repo remoto exista y la clave/token estén listos:
 git push -u origin main
 ```
 
+Si ves `Permission denied (publickey)`, falta añadir tu **clave SSH** a GitHub (cuenta **dordaz-bithonor**) o cambia el remote a HTTPS con PAT:  
+`git remote set-url origin https://github.com/dordaz-bithonor/honordesk.git`
+
 ### Supabase (cuenta Bithonor)
 
 1. Inicia sesión en [supabase.com](https://supabase.com) con **dordaz@bithonor.com**.
