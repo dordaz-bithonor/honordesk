@@ -6,10 +6,16 @@ Documentación de producto y dominio: [docs/HonorDesk_Contexto_v1.1.md](docs/Hon
 
 ## Cuentas: Cursor (Inspirazone) vs GitHub / Supabase / Vercel (Bithonor)
 
-Puedes usar **Cursor** con `info@inspirazone.com` y, a la vez, que el código y la infraestructura queden bajo **GitHub, Supabase y Vercel** con `dordaz@bithonor.com`. Este repo ya tiene `origin` apuntando a:
+Puedes usar **Cursor** con `info@inspirazone.com` y, a la vez, que **solo este proyecto** use **GitHub / Supabase / Vercel** con `dordaz@bithonor.com`. La cuenta de Cursor no controla el `git push`; lo controlan las credenciales que Git guarda para GitHub.
 
-- **SSH:** `git@github.com:dordaz-bithonor/honordesk.git`
-- **HTTPS (alternativa):** `https://github.com/dordaz-bithonor/honordesk.git`
+Este repo está configurado para **no mezclar** credenciales con tus otros repos:
+
+- `credential.useHttpPath=true` **solo aquí** (Git guarda credenciales por URL completa, no solo por `github.com`).
+- `origin` en **HTTPS** con usuario explícito: `https://dordaz-bithonor@github.com/dordaz-bithonor/honordesk.git`
+
+Así otros proyectos en tu PC pueden seguir usando GitHub con **inspirazone** sin que este `remote` les afecte.
+
+Si al hacer `git push` ves `denied to inspirazone`, Windows tenía guardada una credencial genérica de GitHub: abre **Administrador de credenciales de Windows** → **Credenciales de Windows** → busca entradas `git:https://github.com` y elimina la que corresponda a la cuenta equivocada; luego vuelve a hacer `git push` y pega el **PAT de dordaz-bithonor** cuando pida contraseña.
 
 Pasos que debes hacer tú (navegador / GitHub):
 
@@ -23,8 +29,7 @@ Primer envío cuando el repo remoto exista y la clave/token estén listos:
 git push -u origin main
 ```
 
-Si ves `Permission denied (publickey)`, falta añadir tu **clave SSH** a GitHub (cuenta **dordaz-bithonor**) o cambia el remote a HTTPS con PAT:  
-`git remote set-url origin https://github.com/dordaz-bithonor/honordesk.git`
+Si prefieres **SSH** en lugar de HTTPS+PAT: añade una clave SSH en GitHub (cuenta **dordaz-bithonor**) y cambia el remote a `git@github.com:dordaz-bithonor/honordesk.git` (las claves SSH suelen ser por máquina; si una clave está solo en la cuenta Bithonor, no uses esa misma clave en la cuenta inspirazone salvo que sepas cómo gestionar `~/.ssh/config`).
 
 ### Supabase (cuenta Bithonor)
 
