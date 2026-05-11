@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Client {
+  id        String          @id @default(uuid())
+  name      String
+  country   String
+  status    ClientStatus    @default(ACTIVE)
+  notes     String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  services  ClientService[]
+  tasks     Task[]
+}
+
+model ClientService {
+  id          String      @id @default(uuid())
+  clientId    String
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  service     ServiceType
+  startDate   DateTime    @default(now())
+  contractRef String?
+}
+
+model Task {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  clientId    String
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  service     ServiceType
+  priority    Priority    @default(NORMAL)
+  status      TaskStatus  @default(PENDING)
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  createdBy   String
+  creator     User        @relation(fields: [createdBy], references: [id])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      UserRole @default(OPS)
+  createdAt DateTime @default(now())
+  tasks     Task[]
+}
+
+enum ServiceType {
+  SPA
+  PAY_IN_OUT
+  EMPRESAS
+  NOMINA
+}
+
+enum Priority {
+  URGENT
+  HIGH
+  NORMAL
+  LOW
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  ONBOARDING
+}
+
+enum UserRole {
+  ADMIN
+  OPS
+  DEV
+  SUPPORT
+}

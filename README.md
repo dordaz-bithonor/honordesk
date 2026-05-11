@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HonorDesk
 
-## Getting Started
+Sistema interno de gestión de clientes y tareas B2B (Bithonor). Stack: **Next.js** (App Router), **TypeScript**, **Tailwind CSS**, **shadcn/ui**, **Prisma**, **PostgreSQL** (Supabase), **Zustand**.
 
-First, run the development server:
+Documentación de producto y dominio: [docs/HonorDesk_Contexto_v1.1.md](docs/HonorDesk_Contexto_v1.1.md).
+
+## Cuentas: Cursor (Inspirazone) vs GitHub / Supabase / Vercel (Bithonor)
+
+Puedes usar **Cursor** con `info@inspirazone.com` y, a la vez, que el código y la infraestructura queden bajo **GitHub, Supabase y Vercel** con `dordaz@bithonor.com`. Este repo ya tiene `origin` apuntando a:
+
+- **SSH:** `git@github.com:dordaz-bithonor/honordesk.git`
+- **HTTPS (alternativa):** `https://github.com/dordaz-bithonor/honordesk.git`
+
+Pasos que debes hacer tú (navegador / GitHub):
+
+1. Con sesión **dordaz@bithonor.com**, crea en GitHub el repositorio vacío **`honordesk`** bajo el usuario **`dordaz-bithonor`** (sin README ni `.gitignore` si ya tienes historial local).
+2. Autenticación **Git → GitHub** como Bithonor: **SSH** (clave pública en *Settings → SSH keys* de esa cuenta GitHub) o **HTTPS + PAT** desde la misma cuenta.
+3. En esta carpeta, el autor de commits ya está fijado **solo en este repo** a `dordaz@bithonor.com` (no cambia tu `git config --global`). Verifica con `git config user.email`.
+
+Primer envío cuando el repo remoto exista y la clave/token estén listos:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git push -u origin main
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Supabase (cuenta Bithonor)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Inicia sesión en [supabase.com](https://supabase.com) con **dordaz@bithonor.com**.
+2. Crea el proyecto y copia **DATABASE_URL** (pooler) y **DIRECT_URL** (directo) desde *Project Settings → Database*.
+3. Pégalos en `.env.local` junto con `HONORDESK_PIN`.
+4. Ejecuta `npm run db:migrate:deploy` y `npm run db:seed` (ver sección *Configuración* arriba).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Vercel (cuenta Bithonor)
 
-## Learn More
+1. Inicia sesión en [vercel.com](https://vercel.com) con **dordaz@bithonor.com**.
+2. *New Project* → importa **`dordaz-bithonor/honordesk`** y autoriza la integración con GitHub cuando lo pida.
+3. Variables de entorno del proyecto: `DATABASE_URL`, `HONORDESK_PIN` (y `DIRECT_URL` si tu flujo de migraciones lo necesita en ese entorno).
+4. Tras el deploy, prueba el PIN en la URL que te asigne Vercel.
 
-To learn more about Next.js, take a look at the following resources:
+### Comprobaciones rápidas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Qué | Cómo comprobarlo |
+| --- | --- |
+| Remote | `git remote -v` muestra `dordaz-bithonor/honordesk`. |
+| Autor del commit | `git log -1 --format='%ae %an'` muestra `dordaz@bithonor.com`. |
+| Push | `git push` sin error 403 (identidad GitHub correcta). |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Requisitos
 
-## Deploy on Vercel
+- Node.js LTS
+- Proyecto **PostgreSQL** (recomendado: [Supabase](https://supabase.com))
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Configuración
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Copia variables de entorno:
+
+   ```bash
+   copy .env.example .env.local
+   ```
+
+   En macOS/Linux: `cp .env.example .env.local`
+
+2. Rellena en `.env.local`:
+
+   - `DATABASE_URL` — conexión pooled (p. ej. puerto `6543` en Supabase).
+   - `DIRECT_URL` — conexión directa para migraciones (p. ej. puerto `5432`). Si no usas pooler, puedes usar el mismo valor que `DATABASE_URL`.
+   - `HONORDESK_PIN` — PIN de acceso MVP (solo variable de entorno; no va en el repositorio).
+
+3. Aplica migraciones y datos de prueba (los scripts cargan **`.env.local`** vía `dotenv-cli`; Prisma por sí solo no lee `.env.local`):
+
+   ```bash
+   npm run db:migrate:deploy
+   npm run db:seed
+   ```
+
+   En desarrollo local también puedes usar `npm run db:migrate` (equivale a `prisma migrate dev` con las mismas variables).
+
+4. Arranque:
+
+   ```bash
+   npm run dev
+   ```
+
+   Abre [http://localhost:3000](http://localhost:3000), introduce el PIN y revisa el universo de clientes en `/`.
+
+## Scripts útiles
+
+| Script | Descripción |
+| --- | --- |
+| `npm run dev` | Servidor de desarrollo (Turbopack) |
+| `npm run build` | `prisma generate` + build de producción |
+| `npm run db:migrate` | Crear/aplicar migraciones en desarrollo |
+| `npm run db:migrate:deploy` | Aplicar migraciones (CI/producción) |
+| `npm run db:seed` | Cargar datos de ejemplo (usuarios, clientes, tareas) |
+| `npm run lint` | ESLint |
+
+## API interna (MVP)
+
+- `POST /api/auth/pin` — valida `HONORDESK_PIN` y fija cookie de sesión `httpOnly`.
+- `POST /api/auth/logout` — borra la cookie de sesión.
+- `GET /api/clients` — lista clientes; query recomendada: `?include=services,taskCounts&status=ACTIVE` (requiere sesión).
+
+Las rutas bajo `/api` **no** redirigen al PIN: devuelven `401` si falta sesión, para no romper `fetch` desde el cliente.
+
+## Despliegue (Vercel)
+
+Define en el proyecto de Vercel: `DATABASE_URL`, `HONORDESK_PIN`, y (si aplicas migraciones desde tu máquina o CI) mantén `DIRECT_URL` en secretos de desarrollo. El build ejecuta `prisma generate` automáticamente vía script `build`.
+
+## Cómo pedir evoluciones (flexible)
+
+El contexto en `docs/` es una guía viva. Para añadir o cambiar funcionalidad en sesiones sueltas con el asistente, conviene indicar:
+
+1. **Qué debe ver el usuario** (resultado observable).
+2. **Dónde** debería vivir (ruta, p. ej. `/`, `/clients/[id]`, nueva `/mapa`), o dejar que se proponga el cambio mínimo.
+3. Si aplica: **reutilizar** un endpoint existente (p. ej. “usa los mismos datos que `GET /api/clients`”).
+
+Mantén `page.tsx` como composición; la presentación reusable suele ir en `components/` para poder iterar (diagramas, perfiles, modales) sin reestructurar todo el proyecto.
+
+## Prisma
+
+Se fija **Prisma 6.x** en este repo para conservar `url` / `directUrl` en `schema.prisma` de forma estándar con Supabase.
