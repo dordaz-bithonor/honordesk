@@ -1,14 +1,9 @@
 import Link from "next/link";
 
+import { CountryFlagImg } from "@/components/country-flag-img";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ClientListItemDto, ServiceTypeDto } from "@/types";
-
-const serviceLabels: Record<ServiceTypeDto, string> = {
-  SPA: "SPA",
-  PAY_IN_OUT: "Pay In/Out",
-  EMPRESAS: "Empresas",
-  NOMINA: "Nómina",
-};
+import { formatCountryForCard } from "@/lib/supported-markets";
+import type { ClientListItemDto } from "@/types";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -19,6 +14,7 @@ function initials(name: string) {
 
 export function ClientCard({ client }: { client: ClientListItemDto }) {
   const counts = client.taskCounts;
+  const { flagCode, label: countryLabel } = formatCountryForCard(client.country);
 
   return (
     <Link href={`/clients/${client.id}`} className="block transition-opacity hover:opacity-90">
@@ -29,7 +25,19 @@ export function ClientCard({ client }: { client: ClientListItemDto }) {
           </div>
           <div className="min-w-0 flex-1">
             <CardTitle className="truncate text-base leading-tight">{client.name}</CardTitle>
-            <p className="text-muted-foreground text-xs">{client.country}</p>
+            <p className="text-muted-foreground flex items-center gap-2 text-xs">
+              {flagCode ? (
+                <CountryFlagImg code={flagCode} size={18} className="shrink-0" />
+              ) : (
+                <span
+                  className="bg-muted text-muted-foreground inline-flex size-[18px] shrink-0 items-center justify-center rounded border border-border/60 text-[10px]"
+                  aria-hidden
+                >
+                  ?
+                </span>
+              )}
+              <span>{countryLabel}</span>
+            </p>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
@@ -38,18 +46,6 @@ export function ClientCard({ client }: { client: ClientListItemDto }) {
               <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-red-700 dark:text-red-400">Urgentes: {counts.urgent}</span>
               <span className="rounded-full bg-blue-500/15 px-2 py-0.5 text-blue-700 dark:text-blue-400">Pendientes: {counts.pending}</span>
               <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-emerald-700 dark:text-emerald-400">Hechas: {counts.done}</span>
-            </div>
-          ) : null}
-          {client.services?.length ? (
-            <div className="flex flex-wrap gap-1">
-              {client.services.map((s) => (
-                <span
-                  key={s.id}
-                  className="bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium"
-                >
-                  {serviceLabels[s.service]}
-                </span>
-              ))}
             </div>
           ) : null}
         </CardContent>

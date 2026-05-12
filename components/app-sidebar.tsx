@@ -49,7 +49,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   render={<Link href="/backlog" />}
-                  isActive={pathname.startsWith("/backlog")}
+                  isActive={pathname.startsWith("/backlog") || pathname.startsWith("/tasks")}
                   tooltip="Backlog"
                 >
                   <ListTodo />

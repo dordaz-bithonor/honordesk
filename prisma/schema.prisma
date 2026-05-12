@@ -30,19 +30,21 @@ model ClientService {
 }
 
 model Task {
-  id          String      @id @default(uuid())
-  title       String
-  description String?
-  clientId    String
-  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  service     ServiceType
-  priority    Priority    @default(NORMAL)
-  status      TaskStatus  @default(PENDING)
-  order       Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  creator     User        @relation(fields: [createdBy], references: [id])
+  id           String      @id @default(uuid())
+  title        String
+  description  String?
+  clientId     String
+  client       Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  service      ServiceType
+  priority     Priority    @default(NORMAL)
+  status       TaskStatus  @default(PENDING)
+  order        Int         @default(0)
+  /** Orden en el backlog central (lista global). Menor = más arriba. */
+  backlogOrder Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  createdBy    String
+  creator      User        @relation(fields: [createdBy], references: [id])
 }
 
 model User {

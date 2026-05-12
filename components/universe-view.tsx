@@ -6,18 +6,17 @@ import { ClientCard } from "@/components/ClientCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SERVICE_ORDER, serviceTypeLabel } from "@/lib/service-ui";
 import type { ClientListItemDto, ServiceTypeDto } from "@/types";
 
-const serviceOrder: ServiceTypeDto[] = ["SPA", "PAY_IN_OUT", "EMPRESAS", "NOMINA"];
+const serviceOrder = SERVICE_ORDER;
 
-const sectionTitles: Record<ServiceTypeDto, string> = {
-  SPA: "SPA",
-  PAY_IN_OUT: "Pay In / Out",
-  EMPRESAS: "Empresas",
-  NOMINA: "Nómina Internacional",
+type UniverseViewProps = {
+  /** Incrementar para volver a cargar clientes tras crear/editar uno. */
+  reloadToken?: number;
 };
 
-export function UniverseView() {
+export function UniverseView({ reloadToken = 0 }: UniverseViewProps) {
   const [clients, setClients] = useState<ClientListItemDto[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +44,7 @@ export function UniverseView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   const byService = useMemo(() => {
     const map = new Map<ServiceTypeDto, ClientListItemDto[]>();
@@ -112,7 +111,7 @@ export function UniverseView() {
         return (
           <section key={service} className="space-y-3">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold tracking-tight">{sectionTitles[service]}</h2>
+              <h2 className="text-lg font-semibold tracking-tight">{serviceTypeLabel(service)}</h2>
               <Separator className="flex-1" />
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
